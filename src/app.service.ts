@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { Observable } from 'rxjs';
-import { Exchange } from './models/exchange';
+import { map, Observable } from 'rxjs';
+import { DbioToUsdExchange, Exchange } from './models/exchange';
 
 @Injectable()
 export class AppService {
@@ -11,5 +11,31 @@ export class AppService {
     const payload = [];
     
     return this.client.send<Exchange>(pattern, payload);
+  }
+
+  getExchange(dbio: number): Promise<number> {
+    console.log("hello");
+    return new Promise((resolve, reject) => {
+      const pattern = { cmd: 'cache-exchange-dai-to-usd' };
+      const payload = dbio;
+  
+      const exchange = this.client.send<DbioToUsdExchange>(pattern, payload);
+
+      exchange.pipe(
+        map( response => {
+          return response;
+        })
+      )
+
+      exchange.subscribe({
+        next(data) {
+          console.log(data);
+          resolve(data.usd);
+        },
+        error(err) {
+          console.log(err);
+        }
+      })
+    });
   }
 }
