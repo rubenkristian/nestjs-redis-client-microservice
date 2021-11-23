@@ -14,7 +14,6 @@ export class AppService {
   }
 
   getExchange(dbio: number): Promise<number> {
-    console.log("hello");
     return new Promise((resolve, reject) => {
       const pattern = { cmd: 'cache-exchange-dai-to-usd' };
       const payload = dbio;
@@ -29,11 +28,10 @@ export class AppService {
 
       exchange.subscribe({
         next(data) {
-          console.log(data);
           resolve(data.usd);
         },
         error(err) {
-          console.log(err);
+          reject(err);
         }
       })
     });
